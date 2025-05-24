@@ -1,13 +1,29 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard App</title>
-    <link rel="stylesheet" href="%PUBLIC_URL%/styles/globals.css">
-    <link rel="stylesheet" href="%PUBLIC_URL%/styles/responsive.css">
-</head>
-<body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor Judicial</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración opcional de Tailwind -->
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: "#332D56", // Púrpura oscuro
+          secondary: "#4A5568", // Gris oscuro
+          accent: "#A3A3A3", // Gris claro
+          background: "#FFFFFF", // Blanco
+          text: "#2D3748", // Gris oscuro para texto
+        },
+      },
+    },
+  };
+</script>
+  </head>
+  <body>
     <div id="root"></div>
-</body>
+  </body>
 </html>
