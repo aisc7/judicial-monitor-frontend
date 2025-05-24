@@ -1,0 +1,186 @@
+
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  padding: var(--spacing-md);
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+}
+
+/* Tablet grande y pantallas medianas */
+@media (max-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablets y pantallas medianas */
+@media (max-width: 768px) {
+  /* Navegación responsiva */
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .navbar-brand {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .navbar-menu {
+    width: 100%;
+  }
+  
+  /* Layout del dashboard */
+  .dashboard-container {
+    display: block;
+  }
+  
+  .sidebar {
+    width: 100%;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #dee2e6;
+    height: auto;
+  }
+  
+  .dashboard-content {
+    margin-left: 0;
+  }
+  
+  /* Cambios en componentes */
+  .card {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  /* Tabla de procesos judiciales */
+  .judicial-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Ajuste para un mejor scrolling táctil en tablas */
+  .judicial-table::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .judicial-table::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .judicial-table::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+}
+
+
+@media (max-width: 576px) {
+
+  html {
+    font-size: 15px;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+
+  .btn {
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+  
+
+  input, select, textarea, button {
+    font-size: 16px; 
+    padding: 12px;   
+  }
+  
+
+  .card {
+    padding: var(--spacing-sm);
+  }
+  
+
+  .mb-mobile {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .proceso-item {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .proceso-item-label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+
+@media (max-width: 360px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: var(--spacing-sm);
+  }
+  
+
+  .btn-small-screen {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #121212;
+    --color-light: #1e1e1e;
+    --color-body: #e0e0e0;
+  }
+  
+  .card, .sidebar {
+    background-color: #1a1a1a;
+    color: var(--color-body);
+  }
+  
+  .header {
+    background-color: #000;
+  }
+  
+
+  .btn-secondary {
+    background-color: #333;
+    color: white;
+  }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
