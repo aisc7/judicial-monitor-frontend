@@ -1,76 +1,112 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import axios from 'axios';
-import DataTable from '../components/DataTable';
-import StatCard from '../components/StartCard';
-import ProcessDetail from '../components/ProcessDetail';
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import DataTable from "../components/DataTable";
+import StatCard from "../components/StartCard";
+import ProcessDetail from "../components/ProcessDetail";
+import {
+  consultaPorNombre,
+  consultaPorRadicado,
+  detalleProceso,
+} from "../services/api";
 
 const Dashboard = () => {
   const [procesos, setProcesos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedProcess, setSelectedProcess] = useState(null);
-  const [fontSize, setFontSize] = useState('normal');
-  const [searchInput, setSearchInput] = useState('');
+  const [searchType, setSearchType] = useState(""); 
+  const [searchInput, setSearchInput] = useState(""); 
+  const [personType, setPersonType] = useState(""); 
+  const [nameInput, setNameInput] = useState(""); 
+  const [cityInput, setCityInput] = useState(""); 
+  const [dateRange, setDateRange] = useState("30dias"); 
+
   const history = useHistory();
 
-  const userData = JSON.parse(localStorage.getItem('userData')) || {};
-  const userName = userData.nombre || 'Usuario del Sistema';
+  // Función para buscar procesos por nombre
+  const fetchProcesosPorNombre = async () => {
+    try {
+      setLoading(true);
+      const response = await consultaPorNombre(nameInput, personType, cityInput, 1);
+      setProcesos(response.procesos || []);
+      setError(null);
+    } catch (err) {
+      console.error("Error al buscar procesos por nombre:", err);
+      setError("No se pudieron cargar los datos. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  useEffect(() => {
-    const fetchProcesos = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('http://localhost:8000/api/procesos', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        setProcesos(response.data);
-      } catch (err) {
-        console.error('Error al cargar los procesos:', err);
-        setError('No se pudieron cargar los procesos judiciales. Por favor intente nuevamente.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Función para buscar procesos por radicado
+  const fetchProcesosPorRadicado = async () => {
+    try {
+      setLoading(true);
+      const response = await consultaPorRadicado(searchInput, 1);
+      setProcesos(response.procesos || []);
+      setError(null);
+    } catch (err) {
+      console.error("Error al buscar procesos por radicado:", err);
+      setError("No se encontraron resultados para el radicado.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchProcesos();
-  }, []);
-
+  // Función para manejar la búsqueda según el tipo
   const handleSearch = () => {
-    console.log('Buscando por:', searchInput);
-    // Aquí puedes implementar la lógica para buscar procesos por cédula, documento o radicado
+    if (searchType === "nombre") {
+      fetchProcesosPorNombre();
+    } else if (searchType === "radicado") {
+      fetchProcesosPorRadicado();
+    } else {
+      setError("Seleccione un tipo de búsqueda válido.");
+    }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userData');
-    history.push('/');
+  // Función para obtener detalles de un proceso
+  const fetchDetalleProceso = async (idProceso) => {
+    try {
+      setLoading(true);
+      const response = await detalleProceso(idProceso);
+      setSelectedProcess(response);
+    } catch (err) {
+      console.error("Error al obtener detalles del proceso:", err);
+      setError("No se pudieron cargar los detalles del proceso.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const changeFontSize = (size) => {
-    setFontSize(size);
+  // Función para manejar clic en una fila de la tabla
+  const onRowClick = (proceso) => {
+    fetchDetalleProceso(proceso.idProceso);
   };
 
+  // Función para redirigir a la página de detalles
+  const goToDetailsPage = () => {
+    history.push("/detalle");
+  };
+
+  // Estadísticas del panel de control
   const stats = [
     {
-      title: 'Procesos Activos',
-      value: procesos.filter(p => p.estado === 'Activo').length,
-      icon: '📝',
-      color: 'bg-blue-100 text-blue-800',
+      title: "Procesos Activos",
+      value: procesos.filter((p) => p.estado === "Activo").length,
+      icon: "📝",
+      color: "bg-blue-100 text-blue-800",
     },
     {
-      title: 'Próximas Audiencias',
-      value: procesos.filter(p => p.proxima_audiencia && new Date(p.proxima_audiencia) > new Date()).length,
-      icon: '📅',
-      color: 'bg-green-100 text-green-800',
+      title: "Próximas Audiencias",
+      value: procesos.filter((p) => p.proximaAudiencia && new Date(p.proximaAudiencia) > new Date()).length,
+      icon: "📅",
+      color: "bg-green-100 text-green-800",
     },
     {
-      title: 'Pendientes de Respuesta',
-      value: procesos.filter(p => p.estado === 'Pendiente').length,
-      icon: '⏳',
-      color: 'bg-yellow-100 text-yellow-800',
+      title: "Pendientes de Respuesta",
+      value: procesos.filter((p) => p.estado === "Pendiente").length,
+      icon: "⏳",
+      color: "bg-yellow-100 text-yellow-800",
     },
   ];
 
@@ -86,24 +122,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gray-50 ${fontSize === 'large' ? 'text-lg' : fontSize === 'xlarge' ? 'text-xl' : ''}`}>
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-800 text-white shadow">
-        <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex items-center mb-2 md:mb-0">
-            <h1 className="text-2xl font-bold">Monitor Judicial</h1>
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center">
-            <div className="flex items-center mr-0 md:mr-6 mb-2 md:mb-0">
-              <span className="mr-2">Tamaño del texto:</span>
-              <button onClick={() => changeFontSize('normal')} className={`px-2 py-1 mx-1 rounded ${fontSize === 'normal' ? 'bg-white text-blue-800' : 'bg-blue-700'}`}>A</button>
-              <button onClick={() => changeFontSize('large')} className={`px-2 py-1 mx-1 rounded ${fontSize === 'large' ? 'bg-white text-blue-800' : 'bg-blue-700'}`}>A+</button>
-              <button onClick={() => changeFontSize('xlarge')} className={`px-2 py-1 mx-1 rounded ${fontSize === 'xlarge' ? 'bg-white text-blue-800' : 'bg-blue-700'}`}>A++</button>
-            </div>
-            <div className="flex items-center">
-              <span className="hidden md:inline mr-2">Bienvenido(a),</span>
-              <button onClick={handleLogout} className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-white">Cerrar sesión</button>
-            </div>
-          </div>
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Monitor Judicial</h1>
         </div>
       </header>
 
@@ -117,24 +139,75 @@ const Dashboard = () => {
         {/* Formulario de búsqueda */}
         <div className="mb-8 bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Buscar Procesos</h2>
-          <p className="text-gray-600 mb-4">
-            Ingrese su número de cédula, documento o radicado para buscar un proceso judicial.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <input
-              type="text"
-              placeholder="Ingrese cédula, documento o radicado"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
-            />
-            <button
-              onClick={handleSearch}
-              className="px-6 py-2 bg-blue-800 text-white font-bold rounded-lg hover:bg-blue-900 transition-colors"
+          <div className="mb-4">
+            <label className="block text-gray-700 font-bold mb-2">Tipo de Búsqueda:</label>
+            <select
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white text-gray-800"
             >
-              Buscar
-            </button>
+              <option value="">Seleccione...</option>
+              <option value="nombre">Por Nombre</option>
+              <option value="radicado">Por Radicado</option>
+            </select>
           </div>
+
+          {searchType === "nombre" && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-bold mb-2">Tipo de Persona:</label>
+                <select
+                  value={personType}
+                  onChange={(e) => setPersonType(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white text-gray-800"
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="jur">Jurídica</option>
+                  <option value="natural">Natural</option> 
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-bold mb-2">Nombre:</label>
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Ingrese el nombre"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white text-gray-800"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-bold mb-2">Ciudad:</label>
+                <input
+                  type="text"
+                  value={cityInput}
+                  onChange={(e) => setCityInput(e.target.value)}
+                  placeholder="Ingrese la ciudad"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white text-gray-800"
+                />
+              </div>
+            </div>
+          )}
+
+          {searchType === "radicado" && (
+            <div>
+              <label className="block text-gray-700 font-bold mb-2">Radicado:</label>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Ingrese el radicado"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white text-gray-800"
+              />
+            </div>
+          )}
+
+          <button
+            onClick={handleSearch}
+            className="px-6 py-2 bg-blue-800 text-white font-bold rounded-lg hover:bg-blue-900 transition-colors mt-4"
+          >
+            Buscar
+          </button>
         </div>
 
         {/* Panel de control */}
@@ -145,6 +218,12 @@ const Dashboard = () => {
               <StatCard key={index} {...stat} />
             ))}
           </div>
+          <button
+            onClick={goToDetailsPage}
+            className="mt-4 px-6 py-2 bg-blue-800 text-white font-bold rounded-lg hover:bg-blue-900 transition-colors"
+          >
+            Detalle
+          </button>
         </div>
 
         {/* Tabla de procesos */}
@@ -155,29 +234,48 @@ const Dashboard = () => {
               <p className="text-lg text-gray-600">No tiene procesos judiciales asociados.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="overflow-x-auto">
-                <DataTable columns={columns} data={procesos} setData={setProcesos} onRowClick={handleProcessSelect} />
-              </div>
-            </div>
+            <DataTable data={procesos} onRowClick={onRowClick} />
           )}
         </div>
 
         {selectedProcess && (
           <ProcessDetail process={selectedProcess} onClose={() => setSelectedProcess(null)} />
         )}
-      </main>
 
-      <footer className="bg-gray-100 border-t border-gray-200 p-4">
-        <div className="container mx-auto text-center">
-          <p className="text-gray-600">
-            Sistema de Monitoreo Judicial © {new Date().getFullYear()} - Rama Judicial de Colombia
-          </p>
-          <p className="text-sm text-gray-500 mt-1">
-            Para soporte técnico llame a la línea: 01 8000 123 456
-          </p>
+        {/* Sección de guía de uso */}
+        <div className="bg-blue-50 rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">¿Cómo consultar su proceso judicial?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-blue-800 text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+                1
+              </div>
+              <h3 className="text-lg font-bold mb-2">Ingrese sus datos</h3>
+              <p className="text-gray-600">
+                Acceda con su número de cédula o el número de radicado de su proceso.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-blue-800 text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+                2
+              </div>
+              <h3 className="text-lg font-bold mb-2">Consulte su proceso</h3>
+              <p className="text-gray-600">
+                Visualice toda la información actualizada de sus procesos judiciales.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-blue-800 text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+                3
+              </div>
+              <h3 className="text-lg font-bold mb-2">Reciba actualizaciones</h3>
+              <p className="text-gray-600">
+                Manténgase informado sobre los avances y próximas fechas importantes.
+              </p>
+            </div>
+          </div>
         </div>
-      </footer>
+      </main>
     </div>
   );
 };

@@ -1,50 +1,37 @@
-import React from 'react';
+import React from "react";
 
-const DataTable = ({ columns, data, setData, onRowClick }) => {
+const DataTable = ({ data = [], onRowClick }) => {
+  // Asegúrate de que `data` tiene un valor por defecto como un arreglo vacío
+  if (!Array.isArray(data)) {
+    console.error("DataTable: 'data' no es un arreglo válido.");
+    return <p>No hay datos disponibles para mostrar.</p>;
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {columns.map((column, index) => (
-              <th
-                key={index}
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                {column.Header}
-              </th>
-            ))}
+    <table className="table-auto w-full border-collapse border border-gray-200">
+      <thead>
+        <tr>
+          <th className="border border-gray-300 px-4 py-2">ID</th>
+          <th className="border border-gray-300 px-4 py-2">Nombre</th>
+          <th className="border border-gray-300 px-4 py-2">Estado</th>
+          <th className="border border-gray-300 px-4 py-2">Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, index) => (
+          <tr
+            key={index}
+            className="hover:bg-gray-100 cursor-pointer"
+            onClick={() => onRowClick(row)}
+          >
+            <td className="border border-gray-300 px-4 py-2">{row.idProceso}</td>
+            <td className="border border-gray-300 px-4 py-2">{row.nombre}</td>
+            <td className="border border-gray-300 px-4 py-2">{row.estado}</td>
+            <td className="border border-gray-300 px-4 py-2">{row.fecha}</td>
           </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.length > 0 ? (
-            data.map((row, rowIndex) => (
-              <tr 
-                key={rowIndex} 
-                onClick={() => onRowClick && onRowClick(row)}
-                className="hover:bg-gray-50 cursor-pointer"
-              >
-                {columns.map((column, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
-                    {column.Cell ? column.Cell({ value: row[column.accessor], row }) : row[column.accessor]}
-                  </td>
-                ))}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td 
-                colSpan={columns.length} 
-                className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
-              >
-                No hay datos disponibles
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 };
 

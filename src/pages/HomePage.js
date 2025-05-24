@@ -47,6 +47,32 @@ const HomePage = () => {
               </Link>
             </div>
           </div>
+<br />
+<br />
+          {/* Sección de información */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-3xl text-blue-800 mb-4">📋</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Consulta tu Proceso</h3>
+              <p className="text-gray-600">
+                Accede a la información actualizada de tus procesos judiciales con solo ingresar tu número de documento o radicado.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-3xl text-blue-800 mb-4">⏱️</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Ahorra Tiempo</h3>
+              <p className="text-gray-600">
+                Evita desplazamientos y filas innecesarias consultando el estado de tus procesos desde cualquier lugar.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="text-3xl text-blue-800 mb-4">🔒</div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Información Segura</h3>
+              <p className="text-gray-600">
+                Acceso seguro y confiable a la información judicial actualizada de la Rama Judicial de Colombia.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
 
